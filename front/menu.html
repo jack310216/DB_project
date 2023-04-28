@@ -1,14 +1,246 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <title>Page Title</title>
-</head>
+<style type="text/css">
+    .center {
+        max-width: 600px;
+        margin: auto;
+        width: 60%;
+        padding: 10px;
+    }
+    
+    label,
+    input {
+        display: block;
+    }
+    
+    label,
+    fieldset {
+        margin-bottom: 10px;
+    }
+    
+    table,
+    th,
+    td {
+        border: 1px solid black;
+    }
+</style>
 
-<body>
+<body class="center">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        var persons = new Map(); // save all persons' data
+        var over_persons = new Map(); // over-weight persons
+        var under_persons = new Map(); // under-weight persons
+        var normal_persons = new Map(); // not over and not u nder
+        var pie_data;
 
-    <h1>This is a Heading</h1>
-    <p>This is a paragraph.</p>
+        /**
+         * Draw the pie
+         * See https://www.tutorialsteacher.com/d3js/create-pie-chart-using-d3js 
+         * for reference
+         */
+
+        function drawPie() {
+
+            // Step 1        
+            pie_data = [{
+                level: "Normal",
+                count: normal_persons.size
+            }, {
+                level: "Over-w",
+                count: over_persons.size
+            }, {
+                level: "Under-w",
+                count: under_persons.size
+            }];
+            var data = pie_data;
+
+            // Step 2 D3 and SVG container
+            // import d3js, and set the svg in html
+
+            // Step 3 set dimension
+            var svg = d3.select("svg"),
+                width = svg.attr("width"),
+                height = svg.attr("height"),
+                radius = 150;
+
+            var g = svg.append("g")
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+            // Step 4 set scale
+            var ordScale = d3.scaleOrdinal()
+                .domain(data)
+                .range(['green', 'red', 'blue']);
+
+            // Step 5 pie generator
+            var pie = d3.pie().value(function(d) {
+                return d.count;
+            });
+
+            var arc = g.selectAll("arc")
+                .data(pie(data))
+                .enter();
+
+            // Step 6
+            var path = d3.arc()
+                .outerRadius(radius)
+                .innerRadius(0);
+
+            arc.append("path")
+                .attr("d", path)
+                .attr("fill", function(d) {
+                    return ordScale(d.data.level);
+                });
+
+            // Step 7
+            var label = d3.arc()
+                .outerRadius(radius)
+                .innerRadius(40);
+
+            arc.append("text")
+                .attr("transform", function(d) {
+                    return "translate(" + label.centroid(d) + ")";
+                })
+                .text(function(d) {
+                    return d.data.level;
+                })
+                .style("font-family", "arial")
+                .style("font-size", 15);
+        }
+
+        /**
+         * Return the HTML li string from the PersonMap
+         */
+        function personString(personMap) {
+            text = ""
+            for (let [u, d] of personMap) {
+                text += `<li><span style="color:orange;">(ID:${u})</span><strong>${d[0]}</strong>: ${parseInt(d[1]*100)}cm, ${d[2]}kg, BMI: ${d[3]}</li>`;
+            }
+            return text;
+        }
+
+        function hideStat() {
+            let div_stat = document.getElementById("div-stat");
+            let form_BMI = document.getElementById("form-BMI");
+            document.forms["bmi"]["pname"].value = "100001"; // pname預設值
+            hideElement(div_stat);
+            showElement(form_BMI);
+        }
+
+        function showStat() {
+            let div_stat = document.getElementById("div-stat");
+            let form_BMI = document.getElementById("form-BMI");
+            let corrent_user = document.getElementById("corrent_user");
+            let pname = document.forms["bmi"]["pname"].value;
+
+            if (pname == "") {
+                alert("學號不可為空");
+                return;
+            }
+            corrent_user.innerHTML = "現在使用者:" + pname; //登入功能
+            showElement(div_stat);
+            hideElement(form_BMI);
+
+        }
+
+        /**
+         * Show an HTML element
+         */
+
+        function showElement(element) {
+            element.removeAttribute("hidden");
+        }
+
+        /**
+         * Hide an HTML element
+         */
+
+        function hideElement(element) {
+            element.setAttribute("hidden", true);
+        }
+    </script>
+
+    <!-- /*****************************************分隔線*****************************************/ -->
+
+    <h1 style="text-align: center;">選課系統</h1>
+
+    <br>
+
+    <form name="bmi" id="form-BMI">
+
+        <fieldset>
+            <legend>輸入學號</legend>
+            <label for="pname"> 學號:
+                <input type="text" id="pname" name="pname" value="100001" required>
+            </label>
+
+            <input type="Button" value="Submit" onclick="showStat()">
+        </fieldset>
+
+    </form>
+
+
+    <div id="div-stat" hidden>
+        <span style="display:flex; float:right">
+            <input type="Button" value="log out" onclick="hideStat()"><!-- 登出功能 -->
+        </span>
+        <p id="corrent_user"></p>
+
+        <h2>已選課列表: </h2>
+        <table style="width:100%;margin:auto">
+            <tr>
+                <th>CourseID</th>
+                <th>CourseName</th>
+                <th>Department</th>
+                <th>Grade</th>
+                <th>Required </th>
+                <th>Capacity </th>
+                <th>Enrollment </th>
+                <th>Schedule </th>
+                <th>Credit </th>
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </table>
+        <hr>
+
+        <h2>可選課列表: </h2>
+        <table style="width:100%;margin:auto">
+            <tr>
+                <th>CourseID</th>
+                <th>CourseName</th>
+                <th>Department</th>
+                <th>Grade</th>
+                <th>Required </th>
+                <th>Capacity </th>
+                <th>Enrollment </th>
+                <th>Schedule </th>
+                <th>Credit </th>
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </table>
+
+    </div>
 
 </body>
 
