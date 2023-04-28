@@ -9,8 +9,7 @@
         padding: 10px;
     }
     
-    label,
-    input {
+    label {
         display: block;
     }
     
@@ -25,6 +24,11 @@
         border: 1px solid black;
     }
 </style>
+
+<head>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+    </script>
+</head>
 
 <body class="center">
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -109,13 +113,11 @@
                 .style("font-size", 15);
         }
 
-        /**
-         * Return the HTML li string from the PersonMap
-         */
-        function personString(personMap) {
-            text = ""
-            for (let [u, d] of personMap) {
-                text += `<li><span style="color:orange;">(ID:${u})</span><strong>${d[0]}</strong>: ${parseInt(d[1]*100)}cm, ${d[2]}kg, BMI: ${d[3]}</li>`;
+
+        function createtable(data) {
+            text = `<tr><th>CourseID</th><th>CourseName</th><th>Department</th><th>Grade</th><th>Required </th><th>Capacity </th><th>Enrollment </th><th>Schedule </th><th>Credit </th></tr>`
+            for (let [CourseID, CourseName, Department, Grade, Required, Capacity, Enrollment, Schedule, Credit] of data) {
+                text += `<tr><th>${CourseID}</th><th>${CourseName}</th><th>${Department}</th><th>${Grade}</th><th>${Required}</th><th>${Capacity}</th><th>${Enrollment}</th><th>${Schedule}</th><th>${Credit}</th></tr>`
             }
             return text;
         }
@@ -131,16 +133,43 @@
         function showStat() {
             let div_courselist = document.getElementById("div_courselist");
             let form_login = document.getElementById("form_login");
-            let corrent_user = document.getElementById("corrent_user");
+            let current_user = document.getElementById("current_user");
+            let table1 = document.getElementById("table1");
+            let table2 = document.getElementById("table2");
             let UID = document.forms["login"]["UID"].value;
 
             if (UID == "") {
                 alert("學號不可為空");
                 return;
+            } else {
+                $.get('http://localhost:8000/login/' + UID, function(a) {
+                    // 请求成功后的处理
+                    console.log(a[0].length)
+                    console.log("-----")
+                    console.log(a[1].length)
+
+                    if (a[0] == "U") {
+                        alert("學號不存在");
+                    } else {
+                        current_user.innerHTML = "現在使用者:" + UID; //登入功能
+                        showElement(div_courselist);
+                        hideElement(form_login);
+
+                        if (a[0] != 0 && a[1] != 0) {
+                            ta = createtable(a[0]);
+                            tb = createtable(a[1]);
+                            table1.innerHTML = ta;
+                            table2.innerHTML = tb;
+                        } else if (a[0] == 0 && a[1] != 0) {
+                            tb = createtable(a[1]);
+                            table2.innerHTML = tb;
+                        } else if (a[0] != 0 && a[1] == 0) {
+                            ta = createtable(a[0]);
+                            table1.innerHTML = ta;
+                        }
+                    }
+                });
             }
-            corrent_user.innerHTML = "現在使用者:" + UID; //登入功能
-            showElement(div_courselist);
-            hideElement(form_login);
 
         }
 
@@ -185,10 +214,14 @@
         <span style="display:flex; float:right">
             <input type="Button" value="log out" onclick="hideStat()"><!-- 登出功能 -->
         </span>
-        <p id="corrent_user"></p>
+        <p id="current_user"></p>
 
         <h2>已選課列表: </h2>
-        <table style="width:100%;margin:auto">
+        <label for="DEL_CID">
+            <input type="text" id="DEL_CID" name="DEL_CID" value="" required>
+            <input type="Button" value="退選" onclick="">
+        </label>
+        <table id="table1" style="width:100%;margin:auto">
             <tr>
                 <th>CourseID</th>
                 <th>CourseName</th>
@@ -199,23 +232,16 @@
                 <th>Enrollment </th>
                 <th>Schedule </th>
                 <th>Credit </th>
-            </tr>
-            <tr>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
-                <th>1</th>
             </tr>
         </table>
         <hr>
 
         <h2>可選課列表: </h2>
-        <table style="width:100%;margin:auto">
+        <label for="ADD_CID">
+            <input type="text" id="ADD_CID" name="ADD_CID" value="" required>
+            <input type="Button" value="加選" onclick="">
+        </label>
+        <table id="table2" style="width:100%;margin:auto">
             <tr>
                 <th>CourseID</th>
                 <th>CourseName</th>
@@ -226,17 +252,6 @@
                 <th>Enrollment </th>
                 <th>Schedule </th>
                 <th>Credit </th>
-            </tr>
-            <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
             </tr>
         </table>
 
