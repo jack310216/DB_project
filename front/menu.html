@@ -3,9 +3,9 @@
 
 <style type="text/css">
     .center {
-        max-width: 600px;
+        max-width: 1000px;
         margin: auto;
-        width: 60%;
+        width: 80%;
         padding: 10px;
     }
     
@@ -121,26 +121,26 @@
         }
 
         function hideStat() {
-            let div_stat = document.getElementById("div-stat");
-            let form_BMI = document.getElementById("form-BMI");
-            document.forms["bmi"]["pname"].value = "100001"; // pname預設值
-            hideElement(div_stat);
-            showElement(form_BMI);
+            let div_courselist = document.getElementById("div_courselist");
+            let form_login = document.getElementById("form_login");
+            document.forms["login"]["UID"].value = "100001"; // UID預設值
+            hideElement(div_courselist);
+            showElement(form_login);
         }
 
         function showStat() {
-            let div_stat = document.getElementById("div-stat");
-            let form_BMI = document.getElementById("form-BMI");
+            let div_courselist = document.getElementById("div_courselist");
+            let form_login = document.getElementById("form_login");
             let corrent_user = document.getElementById("corrent_user");
-            let pname = document.forms["bmi"]["pname"].value;
+            let UID = document.forms["login"]["UID"].value;
 
-            if (pname == "") {
+            if (UID == "") {
                 alert("學號不可為空");
                 return;
             }
-            corrent_user.innerHTML = "現在使用者:" + pname; //登入功能
-            showElement(div_stat);
-            hideElement(form_BMI);
+            corrent_user.innerHTML = "現在使用者:" + UID; //登入功能
+            showElement(div_courselist);
+            hideElement(form_login);
 
         }
 
@@ -167,12 +167,12 @@
 
     <br>
 
-    <form name="bmi" id="form-BMI">
+    <form name="login" id="form_login">
 
         <fieldset>
             <legend>輸入學號</legend>
-            <label for="pname"> 學號:
-                <input type="text" id="pname" name="pname" value="100001" required>
+            <label for="UID"> 學號:
+                <input type="text" id="UID" name="UID" value="100001" required>
             </label>
 
             <input type="Button" value="Submit" onclick="showStat()">
@@ -181,7 +181,7 @@
     </form>
 
 
-    <div id="div-stat" hidden>
+    <div id="div_courselist" hidden>
         <span style="display:flex; float:right">
             <input type="Button" value="log out" onclick="hideStat()"><!-- 登出功能 -->
         </span>
@@ -201,15 +201,15 @@
                 <th>Credit </th>
             </tr>
             <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
+                <th>1</th>
+                <th>1</th>
+                <th>1</th>
+                <th>1</th>
+                <th>1</th>
+                <th>1</th>
+                <th>1</th>
+                <th>1</th>
+                <th>1</th>
             </tr>
         </table>
         <hr>
