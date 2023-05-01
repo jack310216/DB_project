@@ -33,88 +33,7 @@
 <body class="center">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
-        var persons = new Map(); // save all persons' data
-        var over_persons = new Map(); // over-weight persons
-        var under_persons = new Map(); // under-weight persons
-        var normal_persons = new Map(); // not over and not u nder
-        var pie_data;
-
-        /**
-         * Draw the pie
-         * See https://www.tutorialsteacher.com/d3js/create-pie-chart-using-d3js 
-         * for reference
-         */
-
-        function drawPie() {
-
-            // Step 1        
-            pie_data = [{
-                level: "Normal",
-                count: normal_persons.size
-            }, {
-                level: "Over-w",
-                count: over_persons.size
-            }, {
-                level: "Under-w",
-                count: under_persons.size
-            }];
-            var data = pie_data;
-
-            // Step 2 D3 and SVG container
-            // import d3js, and set the svg in html
-
-            // Step 3 set dimension
-            var svg = d3.select("svg"),
-                width = svg.attr("width"),
-                height = svg.attr("height"),
-                radius = 150;
-
-            var g = svg.append("g")
-                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-            // Step 4 set scale
-            var ordScale = d3.scaleOrdinal()
-                .domain(data)
-                .range(['green', 'red', 'blue']);
-
-            // Step 5 pie generator
-            var pie = d3.pie().value(function(d) {
-                return d.count;
-            });
-
-            var arc = g.selectAll("arc")
-                .data(pie(data))
-                .enter();
-
-            // Step 6
-            var path = d3.arc()
-                .outerRadius(radius)
-                .innerRadius(0);
-
-            arc.append("path")
-                .attr("d", path)
-                .attr("fill", function(d) {
-                    return ordScale(d.data.level);
-                });
-
-            // Step 7
-            var label = d3.arc()
-                .outerRadius(radius)
-                .innerRadius(40);
-
-            arc.append("text")
-                .attr("transform", function(d) {
-                    return "translate(" + label.centroid(d) + ")";
-                })
-                .text(function(d) {
-                    return d.data.level;
-                })
-                .style("font-family", "arial")
-                .style("font-size", 15);
-        }
-
-
-        function createtable(data) {
+        function createtable(data) { // 建立資料表
             text = `<tr><th>CourseID</th><th>CourseName</th><th>Department</th><th>Grade</th><th>Required </th><th>Capacity </th><th>Enrollment </th><th>Schedule </th><th>Credit </th></tr>`
             for (let [CourseID, CourseName, Department, Grade, Required, Capacity, Enrollment, Schedule, Credit] of data) {
                 text += `<tr><th>${CourseID}</th><th>${CourseName}</th><th>${Department}</th><th>${Grade}</th><th>${Required}</th><th>${Capacity}</th><th>${Enrollment}</th><th>${Schedule}</th><th>${Credit}</th></tr>`
@@ -170,7 +89,30 @@
                     }
                 });
             }
+        }
 
+        function delcourse() {
+            let table1 = document.getElementById("table1");
+            let UID = document.forms["login"]["UID"].value;
+            let CID = document.getElementById("DEL_CID").value;
+
+            $.get('http://localhost:8000/delcourse/' + UID + "/" + CID, function(a) {
+                // 请求成功后的处理
+                if (a[0] == "F") {
+                    alert("課號不存在");
+                } else if (a[0] == "N") {
+                    alert("學分不足 不予以退選");
+                } else {
+                    alert("退選成功!!!");
+                }
+            });
+            showStat()
+        }
+
+        function addcourse() {
+            let table2 = document.getElementById("table2");
+            let UID = document.forms["login"]["UID"].value;
+            showStat()
         }
 
         /**
@@ -219,7 +161,7 @@
         <h2>已選課列表: </h2>
         <label for="DEL_CID">
             <input type="text" id="DEL_CID" name="DEL_CID" value="" required>
-            <input type="Button" value="退選" onclick="">
+            <input type="Button" value="退選" onclick="delcourse()">
         </label>
         <table id="table1" style="width:100%;margin:auto">
             <tr>
@@ -239,7 +181,7 @@
         <h2>可選課列表: </h2>
         <label for="ADD_CID">
             <input type="text" id="ADD_CID" name="ADD_CID" value="" required>
-            <input type="Button" value="加選" onclick="">
+            <input type="Button" value="加選" onclick="addcourse()">
         </label>
         <table id="table2" style="width:100%;margin:auto">
             <tr>
@@ -256,7 +198,6 @@
         </table>
 
     </div>
-
 </body>
 
 </html>
