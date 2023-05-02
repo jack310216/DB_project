@@ -28,15 +28,24 @@
 <head>
     <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
     </script>
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
 </head>
 
 <body class="center">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
-        function createtable(data) { // 建立資料表
+        function createtable(flag, data) { // 建立資料表
             text = `<tr><th>CourseID</th><th>CourseName</th><th>Department</th><th>Grade</th><th>Required </th><th>Capacity </th><th>Enrollment </th><th>Schedule </th><th>Credit </th></tr>`
-            for (let [CourseID, CourseName, Department, Grade, Required, Capacity, Enrollment, Schedule, Credit] of data) {
-                text += `<tr><th>${CourseID}</th><th>${CourseName}</th><th>${Department}</th><th>${Grade}</th><th>${Required}</th><th>${Capacity}</th><th>${Enrollment}</th><th>${Schedule}</th><th>${Credit}</th></tr>`
+            if (flag) {
+                if (data.length > 1) {
+                    console.log(data)
+                    for (let [CourseID, CourseName, Department, Grade, Required, Capacity, Enrollment, Schedule, Credit] of data) {
+                        text += `<tr><th>${CourseID}</th><th>${CourseName}</th><th>${Department}</th><th>${Grade}</th><th>${Required}</th><th>${Capacity}</th><th>${Enrollment}</th><th>${Schedule}</th><th>${Credit}</th></tr>`
+                    }
+                } else {
+                    console.log(data)
+                    text += `<tr><th>${data[0][0]}</th><th>${data[0][1]}</th><th>${data[0][2]}</th><th>${data[0][3]}</th><th>${data[0][4]}</th><th>${data[0][5]}</th><th>${data[0][6]}</th><th>${data[0][7]}</th><th>${data[0][8]}</th></tr>`
+                }
             }
             return text;
         }
@@ -49,6 +58,31 @@
             showElement(form_login);
         }
 
+        function refreshtable(a) {
+            let table1 = document.getElementById("table1");
+            let table2 = document.getElementById("table2");
+            console.log("Table 渲染")
+            if (a[0] != 0 && a[1] != 0) {
+                console.log("A:有 B:有")
+                ta = createtable(true, a[0]);
+                tb = createtable(true, a[1]);
+                table1.innerHTML = ta;
+                table2.innerHTML = tb;
+            } else if (a[0] == 0 && a[1] != 0) {
+                console.log("A:空 B:有")
+                ta = createtable(false, 0);
+                tb = createtable(true, a[1]);
+                table1.innerHTML = ta;
+                table2.innerHTML = tb;
+            } else if (a[0] != 0 && a[1] == 0) {
+                console.log("A:有 B:空")
+                ta = createtable(true, a[0]);
+                tb = createtable(false, 0);
+                table1.innerHTML = ta;
+                table2.innerHTML = tb;
+            }
+        }
+
         function showStat() {
             let div_courselist = document.getElementById("div_courselist");
             let form_login = document.getElementById("form_login");
@@ -56,36 +90,23 @@
             let table1 = document.getElementById("table1");
             let table2 = document.getElementById("table2");
             let UID = document.forms["login"]["UID"].value;
+            document.getElementById("DEL_CID").value = 10;
+            document.getElementById("ADD_CID").value = 10;
 
             if (UID == "") {
                 alert("學號不可為空");
                 return;
             } else {
+                console.log("登入學號:", UID)
                 $.get('http://localhost:8000/login/' + UID, function(a) {
                     // 请求成功后的处理
-                    console.log(a[0].length)
-                    console.log("-----")
-                    console.log(a[1].length)
-
                     if (a[0] == "U") {
                         alert("學號不存在");
                     } else {
                         current_user.innerHTML = "現在使用者:" + UID; //登入功能
                         showElement(div_courselist);
                         hideElement(form_login);
-
-                        if (a[0] != 0 && a[1] != 0) {
-                            ta = createtable(a[0]);
-                            tb = createtable(a[1]);
-                            table1.innerHTML = ta;
-                            table2.innerHTML = tb;
-                        } else if (a[0] == 0 && a[1] != 0) {
-                            tb = createtable(a[1]);
-                            table2.innerHTML = tb;
-                        } else if (a[0] != 0 && a[1] == 0) {
-                            ta = createtable(a[0]);
-                            table1.innerHTML = ta;
-                        }
+                        refreshtable(a)
                     }
                 });
             }
@@ -95,24 +116,37 @@
             let table1 = document.getElementById("table1");
             let UID = document.forms["login"]["UID"].value;
             let CID = document.getElementById("DEL_CID").value;
-
             $.get('http://localhost:8000/delcourse/' + UID + "/" + CID, function(a) {
                 // 请求成功后的处理
                 if (a[0] == "F") {
                     alert("課號不存在");
                 } else if (a[0] == "N") {
                     alert("學分不足 不予以退選");
+                } else if (a[0] == "D") {
+                    alert("未有可退選課程");
                 } else {
                     alert("退選成功!!!");
+                    showStat()
                 }
             });
-            showStat()
         }
 
         function addcourse() {
             let table2 = document.getElementById("table2");
             let UID = document.forms["login"]["UID"].value;
-            showStat()
+            let CID = document.getElementById("ADD_CID").value;
+            console.log("加選")
+            $.get('http://localhost:8000/addcourse/' + UID + "/" + CID, function(a) {
+                // 请求成功后的处理
+                if (a[0] == "F") {
+                    alert("課號不存在");
+                } else if (a[0] == "D") {
+                    alert("未有可加選課程");
+                } else {
+                    alert("加選成功!!!");
+                    showStat()
+                }
+            });
         }
 
         /**
