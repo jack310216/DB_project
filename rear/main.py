@@ -255,6 +255,9 @@ def delcourse(UID, CID):
                 command = f"DELETE FROM selectedcourse WHERE `selectedcourse`.`StudentID` = \"{UID}\" AND `selectedcourse`.`CourseID` = \"{CID}\";"
                 cursor2.execute(command)
                 c.commit()
+                command = f"UPDATE `course` SET `Enrollment`= (SELECT `Enrollment` FROM `course` WHERE CourseID = \"{CID}\") -1 WHERE CourseID = \"{CID}\";"
+                cursor2.execute(command)
+                c.commit()
                 return "S"
             else:
                 return "N"
@@ -269,6 +272,9 @@ def addcourse(UID, CID):
     if(len(data_b)>0):
         if (checkCID(CID, data_b)):
             command = f"INSERT INTO `selectedcourse`(`StudentID`, `CourseID`) VALUES (\"{UID}\",\"{CID}\");"
+            cursor2.execute(command)
+            c.commit()
+            command = f"UPDATE `course` SET `Enrollment`= (SELECT `Enrollment` FROM `course` WHERE CourseID = \"{CID}\") +1 WHERE CourseID = \"{CID}\";"
             cursor2.execute(command)
             c.commit()
             return "S"

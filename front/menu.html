@@ -40,11 +40,15 @@
                 if (data.length > 1) {
                     console.log(data)
                     for (let [CourseID, CourseName, Department, Grade, Required, Capacity, Enrollment, Schedule, Credit] of data) {
-                        text += `<tr><th>${CourseID}</th><th>${CourseName}</th><th>${Department}</th><th>${Grade}</th><th>${Required}</th><th>${Capacity}</th><th>${Enrollment}</th><th>${Schedule}</th><th>${Credit}</th></tr>`
+                        temp = changereq(Required)
+                        text += `<tr><th>${CourseID}</th><th>${CourseName}</th><th>${Department}</th><th>${Grade}</th><th>${temp}</th><th>${Capacity}</th><th>${Enrollment}</th><th>${Schedule}</th><th>${Credit}</th></tr>`
+                            // text += `<tr><th>${CourseID}</th><th>${CourseName}</th><th>${Department}</th><th>${Grade}</th><th>${Required}</th><th>${Capacity}</th><th>${Enrollment}</th><th>${Schedule}</th><th>${Credit}</th></tr>`
                     }
                 } else {
                     console.log(data)
-                    text += `<tr><th>${data[0][0]}</th><th>${data[0][1]}</th><th>${data[0][2]}</th><th>${data[0][3]}</th><th>${data[0][4]}</th><th>${data[0][5]}</th><th>${data[0][6]}</th><th>${data[0][7]}</th><th>${data[0][8]}</th></tr>`
+                    temp = changereq(data[0][4])
+                    text += `<tr><th>${data[0][0]}</th><th>${data[0][1]}</th><th>${data[0][2]}</th><th>${data[0][3]}</th><th>${temp}</th><th>${data[0][5]}</th><th>${data[0][6]}</th><th>${data[0][7]}</th><th>${data[0][8]}</th></tr>`
+                        // text += `<tr><th>${data[0][0]}</th><th>${data[0][1]}</th><th>${data[0][2]}</th><th>${data[0][3]}</th><th>${data[0][4]}</th><th>${data[0][5]}</th><th>${data[0][6]}</th><th>${data[0][7]}</th><th>${data[0][8]}</th></tr>`
                 }
             }
             return text;
@@ -163,6 +167,14 @@
 
         function hideElement(element) {
             element.setAttribute("hidden", true);
+        }
+
+        function changereq(input) {
+            if (input == 1) {
+                return "必"
+            } else {
+                return "選"
+            }
         }
     </script>
 
